@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AG-UI / A2UI / ADK — Complete Interaction Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a;
+    --bg-grid:#0d1220;
+    --surface:#111729;
+    --surface-2:#151d33;
+    --border:#22304d;
+    --border-strong:#324769;
+    --text:#e7ecf6;
+    --text-dim:#93a1c4;
+    --text-faint:#57638a;
+
+    --setup:#a78bfa;
+    --setup-bg:rgba(167,139,250,0.08);
+    --server:#2dd4bf;
+    --server-bg:rgba(45,212,191,0.08);
+    --transport:#f2a623;
+    --transport-bg:rgba(242,166,35,0.08);
+    --client:#f472b6;
+    --client-bg:rgba(244,114,182,0.08);
+    --branch:#fb7185;
+    --branch-bg:rgba(251,113,133,0.07);
+
+    --font-display:'JetBrains Mono', ui-monospace, monospace;
+    --font-body:'Inter', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(45,212,191,0.05), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(167,139,250,0.06), transparent 40%),
+      var(--bg);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
+      radial-gradient(circle at 15% 8%, rgba(45,212,191,0.05), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(167,139,250,0.06), transparent 40%);
+    background-size: 32px 32px, 32px 32px, auto, auto;
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.6;
+    padding:48px 20px 96px;
+  }
+
+  .wrap{max-width:980px; margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  header{margin-bottom:56px;}
+  .eyebrow{
+    font-family:var(--font-display);
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--server);
+    margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--server);}
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(26px,4vw,38px);
+    letter-spacing:-0.01em;
+    margin-bottom:14px;
+    color:#fff;
+  }
+  header p.sub{color:var(--text-dim); font-size:15.5px; max-width:640px; margin-bottom:32px;}
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:10px;
+    padding:16px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; color:var(--text-dim);
+    padding:5px 10px;
+    border-radius:6px;
+    background:var(--surface-2);
+  }
+  .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+
+  /* ---------- Flow ---------- */
+  .flow{position:relative;}
+
+  .phase{
+    position:relative;
+    margin-bottom:8px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--surface);
+    overflow:hidden;
+  }
+  .phase-head{
+    padding:20px 24px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .phase-num{
+    font-family:var(--font-display);
+    font-size:12px;
+    font-weight:600;
+    color:var(--bg);
+    background:var(--text);
+    padding:3px 9px;
+    border-radius:5px;
+    letter-spacing:0.03em;
+    flex-shrink:0;
+  }
+  .phase-head h2{
+    font-family:var(--font-display);
+    font-size:17px;
+    font-weight:600;
+    color:#fff;
+  }
+  .phase-actor{
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+    letter-spacing:0.02em;
+    margin-left:auto;
+  }
+  .phase-desc{
+    padding:0 24px 18px;
+    color:var(--text-dim);
+    font-size:13.5px;
+    max-width:680px;
+  }
+
+  .steps{padding:6px 24px 22px;}
+  .step{
+    position:relative;
+    display:flex;
+    gap:16px;
+    padding:16px 0;
+  }
+  .step:not(:last-child)::after{
+    content:'';
+    position:absolute;
+    left:15px; top:44px; bottom:-16px;
+    width:1px;
+    background:var(--border-strong);
+  }
+  .step-num{
+    flex-shrink:0;
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--surface-2);
+    border:1px solid var(--border-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display);
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    z-index:1;
+  }
+  .step-body{flex:1; padding-top:2px;}
+  .step-body h3{
+    font-size:14.5px;
+    font-weight:600;
+    color:#fff;
+    margin-bottom:5px;
+  }
+  .step-body p{
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  code{
+    font-family:var(--font-display);
+    font-size:12px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    padding:1px 6px;
+    border-radius:4px;
+    color:#d7e0f5;
+  }
+  .snippet{
+    display:block;
+    font-family:var(--font-display);
+    font-size:12px;
+    background:#0c1220;
+    border:1px solid var(--border);
+    border-left:2px solid var(--lane-accent, var(--text-faint));
+    padding:10px 14px;
+    border-radius:6px;
+    color:#a8b6da;
+    margin-top:6px;
+    overflow-x:auto;
+    white-space:pre;
+  }
+
+  /* lane accent coloring */
+  .step[data-lane="setup"] .step-num{border-color:var(--setup); color:var(--setup);}
+  .step[data-lane="server"] .step-num{border-color:var(--server); color:var(--server);}
+  .step[data-lane="transport"] .step-num{border-color:var(--transport); color:var(--transport);}
+  .step[data-lane="client"] .step-num{border-color:var(--client); color:var(--client);}
+  .step[data-lane="setup"] .snippet{--lane-accent:var(--setup);}
+  .step[data-lane="server"] .snippet{--lane-accent:var(--server);}
+  .step[data-lane="transport"] .snippet{--lane-accent:var(--transport);}
+  .step[data-lane="client"] .snippet{--lane-accent:var(--client);}
+
+  .lane-chip{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--font-display);
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:2px 8px;
+    border-radius:20px;
+    margin-bottom:8px;
+  }
+  .lane-chip.setup{color:var(--setup); background:var(--setup-bg); border:1px solid rgba(167,139,250,0.3);}
+  .lane-chip.server{color:var(--server); background:var(--server-bg); border:1px solid rgba(45,212,191,0.3);}
+  .lane-chip.transport{color:var(--transport); background:var(--transport-bg); border:1px solid rgba(242,166,35,0.3);}
+  .lane-chip.client{color:var(--client); background:var(--client-bg); border:1px solid rgba(244,114,182,0.3);}
+
+  .phase[data-phase-lane="setup"] .phase-actor{background:var(--setup-bg); color:var(--setup); border:1px solid rgba(167,139,250,0.3);}
+  .phase[data-phase-lane="server"] .phase-actor{background:var(--server-bg); color:var(--server); border:1px solid rgba(45,212,191,0.3);}
+  .phase[data-phase-lane="transport"] .phase-actor{background:var(--transport-bg); color:var(--transport); border:1px solid rgba(242,166,35,0.3);}
+  .phase[data-phase-lane="client"] .phase-actor{background:var(--client-bg); color:var(--client); border:1px solid rgba(244,114,182,0.3);}
+  .phase[data-phase-lane="mixed"] .phase-actor{background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border-strong);}
+
+  /* connector between phases */
+  .connector{
+    display:flex; align-items:center; justify-content:center;
+    padding:10px 0;
+    position:relative;
+  }
+  .connector svg{opacity:0.5;}
+
+  /* branch / loop callouts */
+  .branch{
+    margin:8px 0 4px 48px;
+    padding:12px 16px;
+    background:var(--branch-bg);
+    border:1px dashed rgba(251,113,133,0.4);
+    border-radius:8px;
+  }
+  .branch-label{
+    font-family:var(--font-display);
+    font-size:11px;
+    font-weight:600;
+    color:var(--branch);
+    letter-spacing:0.03em;
+    margin-bottom:4px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .branch p{font-size:13px; color:var(--text-dim);}
+
+  .loopback{
+    margin:14px 24px 20px;
+    padding:14px 18px;
+    background:var(--branch-bg);
+    border:1px dashed rgba(251,113,133,0.4);
+    border-radius:10px;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .loopback .icon{
+    font-size:16px; color:var(--branch); flex-shrink:0; margin-top:1px;
+  }
+  .loopback p{font-size:13px; color:var(--text-dim);}
+  .loopback strong{color:var(--branch); font-weight:600;}
+
+  footer{
+    margin-top:48px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    font-size:12px;
+    color:var(--text-faint);
+  }
+
+  @media (max-width:640px){
+    .step{gap:12px;}
+    .phase-head{padding:16px 16px 12px;}
+    .phase-desc{padding:0 16px 14px;}
+    .steps{padding:4px 16px 18px;}
+    .loopback{margin:14px 16px 18px;}
+    .branch{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Reference diagram · AG-UI / A2UI / ADK</div>
+    <h1>How an ADK agent talks to a web frontend</h1>
+    <p class="sub">The full lifecycle from one-time developer setup through a single user turn — event wiring, the A2UI catalog handshake, JSON generation, schema validation, and native client rendering.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="dot" style="background:var(--setup)"></span>Setup — you, the developer</div>
+      <div class="legend-item"><span class="dot" style="background:var(--server)"></span>Server — ADK agent runtime</div>
+      <div class="legend-item"><span class="dot" style="background:var(--transport)"></span>Transport — AG-UI / A2A wire</div>
+      <div class="legend-item"><span class="dot" style="background:var(--client)"></span>Client — frontend renderer</div>
+      <div class="legend-item"><span class="dot" style="background:var(--branch)"></span>Branch / loop path</div>
+    </div>
+  </header>
+
+  <div class="flow">
+
+    <!-- PHASE 0 -->
+    <section class="phase" data-phase-lane="setup">
+      <div class="phase-head">
+        <span class="phase-num">Phase 0</span>
+        <h2>One-time setup</h2>
+        <span class="phase-actor">Developer · happens once</span>
+      </div>
+      <p class="phase-desc">Before any user ever connects. This is code you write once in <code>agent.py</code>; the ADK agent itself is not restructured — AG-UI and A2UI are layered around it.</p>
+      <div class="steps">
+        <div class="step" data-lane="setup">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip setup">setup</span>
+            <h3>Build the ADK agent as normal</h3>
+            <p><code>root_agent</code>, tools, and any <code>sub_agents</code> / <code>SequentialAgent</code> / <code>ParallelAgent</code> topology — unchanged by anything below.</p>
+          </div>
+        </div>
+        <div class="step" data-lane="setup">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip setup">setup</span>
+            <h3>Wrap it for AG-UI</h3>
+            <p>An adapter intercepts ADK's native execution and translates it into AG-UI events — no change to the agent's internal logic.</p>
+            <span class="snippet">from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
+adk_agent_wrapper = ADKAgent(adk_agent=root_agent, user_id="demo_user")
+add_adk_fastapi_endpoint(app, adk_agent_wrapper, path="/")</span>
+          </div>
+        </div>
+        <div class="step" data-lane="setup">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="lane-chip setup">setup — optional, A2UI only</span>
+            <h3>Define or choose a component catalog</h3>
+            <p>A JSON Schema listing exactly which components (Card, Row, Column, Button…) the agent is allowed to reference. Use the starter <code>BasicCatalog</code>, or your own schema mapped to your real design system for production.</p>
+          </div>
+        </div>
+        <div class="step" data-lane="setup">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <span class="lane-chip setup">setup — optional, A2UI only</span>
+            <h3>Generate the system prompt from the catalog</h3>
+            <p>The schema manager turns the catalog schema plus few-shot examples into an instruction string, and that string becomes the agent's normal system prompt.</p>
+            <span class="snippet">schema_manager = A2uiSchemaManager(catalogs=[BasicCatalog.get_config()])
+instruction = schema_manager.generate_system_prompt(role_description="...")
+root_agent = Agent(model="gemini-2.5-flash", instruction=instruction, tools=[...])</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector"><svg width="24" height="28" viewBox="0 0 24 28"><path d="M12 2 V22 M4 16 L12 24 L20 16" stroke="#354769" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- PHASE 1 -->
+    <section class="phase" data-phase-lane="client">
+      <div class="phase-head">
+        <span class="phase-num">Phase 1</span>
+        <h2>Session bootstrap — the catalog handshake</h2>
+        <span class="phase-actor">Client → agent · once per connection</span>
+      </div>
+      <p class="phase-desc">Runs before the first message. The client declares what it's capable of rendering; the agent only ever gets to pick from that declared set.</p>
+      <div class="steps">
+        <div class="step" data-lane="client">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip client">client</span>
+            <h3>Client announces supported catalogs</h3>
+            <p>The frontend has its own catalog + renderer registered (its design system). It advertises this as <code>supportedCatalogIds</code> so the agent knows what it's allowed to speak.</p>
+          </div>
+        </div>
+        <div class="step" data-lane="server">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip server">orchestrator, if remote sub-agents exist</span>
+            <h3>Orchestrator aggregates sub-agent catalogs</h3>
+            <p>If this agent delegates to remote A2A agents, it collects <em>their</em> supported catalog IDs from each Agent Card and re-advertises the union upward in its own Agent Card.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector"><svg width="24" height="28" viewBox="0 0 24 28"><path d="M12 2 V22 M4 16 L12 24 L20 16" stroke="#354769" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- PHASE 2 -->
+    <section class="phase" data-phase-lane="mixed">
+      <div class="phase-head">
+        <span class="phase-num">Phase 2</span>
+        <h2>A user turn begins</h2>
+        <span class="phase-actor">Client → transport → server</span>
+      </div>
+      <p class="phase-desc">Fires every time the user sends a message — including messages that are really UI interactions (a button click) coming back from a previous turn.</p>
+      <div class="steps">
+        <div class="step" data-lane="client">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip client">client</span>
+            <h3>User sends a message</h3>
+            <p>Typed text, or a structured event from a previously rendered A2UI component (e.g. a button's <code>action</code> firing).</p>
+          </div>
+        </div>
+        <div class="step" data-lane="transport">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip transport">transport</span>
+            <h3>Client POSTs RunAgentInput</h3>
+            <p>One HTTP request carries everything the agent needs for this run.</p>
+            <span class="snippet">RunAgentInput {
+  threadId, runId,
+  messages: [...],
+  state: {...},        // shared app state
+  context: [...],       // semantic prompt items
+  tools: [...],         // frontend tools the agent may call
+  forwardedProps: {...} // free-form extra data — must be read explicitly
+}</span>
+          </div>
+        </div>
+        <div class="step" data-lane="server">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="lane-chip server">server</span>
+            <h3>Middleware maps thread → session and invokes the agent</h3>
+            <p>AG-UI's client-facing <code>thread_id</code> is mapped internally to ADK's own <code>session_id</code> — transparent to the frontend. Session state is primed, then <code>agent.run()</code> starts, same as any local <code>adk run</code>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector"><svg width="24" height="28" viewBox="0 0 24 28"><path d="M12 2 V22 M4 16 L12 24 L20 16" stroke="#354769" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- PHASE 3 -->
+    <section class="phase" data-phase-lane="server">
+      <div class="phase-head">
+        <span class="phase-num">Phase 3</span>
+        <h2>Agent reasoning and UI generation</h2>
+        <span class="phase-actor">Server · the ADK reasoning loop</span>
+      </div>
+      <p class="phase-desc">Control flow is identical to a plain-text agent — nothing here rewrites <code>SequentialAgent</code> / <code>ParallelAgent</code> / <code>LoopAgent</code> composition. What changes is what the model is allowed to emit as output.</p>
+      <div class="steps">
+        <div class="step" data-lane="server">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip server">server</span>
+            <h3>LLM reasons against its system prompt</h3>
+            <p>If A2UI was configured in Phase 0, the catalog schema and few-shot examples are already sitting in this same prompt.</p>
+          </div>
+        </div>
+        <div class="step" data-lane="server">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip server">server</span>
+            <h3>Local tool calls execute as usual</h3>
+            <p>Standard ADK tool execution — arguments in, result back into context. No AG-UI-specific change to this mechanic.</p>
+          </div>
+        </div>
+
+        <div class="branch">
+          <div class="branch-label">↳ optional branch</div>
+          <p><strong>Remote A2A delegation.</strong> If the task needs a sub-agent outside this process, the orchestrator calls it over A2A using its discovered Agent Card. That remote agent may itself be A2UI-aware and return its own <code>createSurface</code> / <code>updateComponents</code> JSON — which travels back through this same orchestrator as opaque cargo, regardless of which agent authored it.</p>
+        </div>
+
+        <div class="step" data-lane="server">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="lane-chip server">server — A2UI only</span>
+            <h3>Model emits three ordered JSON messages</h3>
+            <p>Structure and data are kept separate on purpose, so structure can stream in before values are known.</p>
+            <span class="snippet">1. createSurface     { surfaceId, catalogId }         — must come first
+2. updateComponents  { component tree, by name }   — the schema
+3. updateDataModel   { values via JSON Pointer }   — populates it</span>
+          </div>
+        </div>
+        <div class="step" data-lane="server">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <span class="lane-chip server">server</span>
+            <h3>Validator checks the output against the A2UI schema</h3>
+            <p>Runs before anything is streamed to the client — catches a malformed or out-of-catalog component reference at the source.</p>
+          </div>
+        </div>
+
+        <div class="loopback">
+          <span class="icon">↻</span>
+          <p><strong>Self-correction loop.</strong> If validation fails, a structured error — <code>code: "VALIDATION_FAILED"</code>, <code>surfaceId</code> — is fed back to the LLM as a follow-up prompt, and it regenerates. This repeats until the JSON validates, then execution continues to Phase 4.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector"><svg width="24" height="28" viewBox="0 0 24 28"><path d="M12 2 V22 M4 16 L12 24 L20 16" stroke="#354769" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- PHASE 4 -->
+    <section class="phase" data-phase-lane="transport">
+      <div class="phase-head">
+        <span class="phase-num">Phase 4</span>
+        <h2>Event translation and the wire</h2>
+        <span class="phase-actor">Transport · AG-UI event stream</span>
+      </div>
+      <p class="phase-desc">Everything the agent did in Phase 3 — text, tool calls, validated UI JSON — gets narrated to the client as a single ordered stream of typed events.</p>
+      <div class="steps">
+        <div class="step" data-lane="transport">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip transport">transport</span>
+            <h3>ADK execution is translated into AG-UI events</h3>
+            <span class="snippet">RUN_STARTED
+TEXT_MESSAGE_START / CONTENT / END     — plain text, token by token
+TOOL_CALL_START / ARGS / END           — tool invocations
+STATE_SNAPSHOT / STATE_DELTA           — shared state, JSON Patch (RFC 6902)
+(validated A2UI surface messages ride inside this same stream)
+RUN_FINISHED  or  RUN_ERROR</span>
+          </div>
+        </div>
+        <div class="step" data-lane="transport">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip transport">transport</span>
+            <h3>Streamed to the client</h3>
+            <p>One JSON event per line over Server-Sent Events by default (WebSockets also permitted). Events sharing a <code>messageId</code> or <code>toolCallId</code> must follow START → CONTENT/ARGS → END order, and the whole run is bracketed by <code>RUN_STARTED</code> / <code>RUN_FINISHED</code>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connector"><svg width="24" height="28" viewBox="0 0 24 28"><path d="M12 2 V22 M4 16 L12 24 L20 16" stroke="#354769" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <!-- PHASE 5 -->
+    <section class="phase" data-phase-lane="client">
+      <div class="phase-head">
+        <span class="phase-num">Phase 5</span>
+        <h2>Client reception and native rendering</h2>
+        <span class="phase-actor">Client · the frontend</span>
+      </div>
+      <p class="phase-desc">The client already agreed to a catalog in Phase 1 — everything here is just resolving that promise into real components, never executing anything the agent sent.</p>
+      <div class="steps">
+        <div class="step" data-lane="client">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="lane-chip client">client</span>
+            <h3>SDK parses the stream and dispatches by event type</h3>
+            <p>Text events feed the chat bubble. Tool call events either render through a developer-registered component (Tier-1 tool rendering) or, for A2UI, are handed to the surface renderer below.</p>
+          </div>
+        </div>
+        <div class="step" data-lane="client">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="lane-chip client">client — A2UI only</span>
+            <h3>Renderer resolves the surface</h3>
+            <span class="snippet">createSurface     → look up catalogId in the client's registered catalog + component map
+updateComponents  → build/patch the flat component tree by id reference
+updateDataModel   → bind values into the tree, re-render — no iframe, native components</span>
+          </div>
+        </div>
+        <div class="step" data-lane="client">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="lane-chip client">client</span>
+            <h3>State deltas patch the shared store</h3>
+            <p><code>STATE_DELTA</code> is applied as a JSON Patch to local state, which re-renders any bound UI immediately.</p>
+          </div>
+        </div>
+
+        <div class="loopback">
+          <span class="icon">↺</span>
+          <p><strong>The loop closes here.</strong> Updated client state — and any user interaction with a rendered A2UI component — becomes part of the <em>next</em> <code>RunAgentInput</code>, back at Phase 2. This is what makes AG-UI bidirectional by default rather than a one-way broadcast.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    Reflects the AG-UI / A2UI / ADK integration surface as documented in mid-2026 (A2UI v0.9–v1.0 candidate). Both protocols are moving quickly — verify exact event and field names against current docs before shipping.
+  </footer>
+
+</div>
+</body>
+</html>
